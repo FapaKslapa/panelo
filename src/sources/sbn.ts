@@ -17,22 +17,23 @@ async function bySubject(query: string, by: SearchBy, subject: string) {
 }
 
 // shortcut: il catalogo SBN non restituisce autori, ISBN né copertine nella ricerca, solo titolo e "luogo : editore, anno"
+export const fromRecord = (r: { codiceIdentificativo: string; titolo: string; pubblicazione: string }) =>
+  parseComic({
+    source: "sbn",
+    sourceId: r.codiceIdentificativo,
+    title: r.titolo.split(" / ")[0]?.trim() || r.titolo,
+    authors: [],
+    publisher: r.pubblicazione.match(/ : ([^,;]+)/)?.[1]?.trim() ?? null,
+    year: Number(r.pubblicazione.match(/(\d{4})\D*$/)?.[1]) || null,
+    languages: [],
+    isbn: null,
+    cover: null,
+  });
+
 export const sbn: Source = {
   name: "sbn",
   async search(query, by) {
     const records = (await Promise.all(SUBJECTS.map((s) => bySubject(query, by, s)))).flat();
-    return records.flatMap((r) =>
-      parseComic({
-        source: "sbn",
-        sourceId: r.codiceIdentificativo,
-        title: r.titolo.split(" / ")[0]?.trim() || r.titolo,
-        authors: [],
-        publisher: r.pubblicazione.match(/ : ([^,;]+)/)?.[1]?.trim() ?? null,
-        year: Number(r.pubblicazione.match(/(\d{4})\D*$/)?.[1]) || null,
-        languages: [],
-        isbn: null,
-        cover: null,
-      }),
-    );
+    return records.flatMap(fromRecord);
   },
 };

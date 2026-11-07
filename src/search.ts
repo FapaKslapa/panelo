@@ -74,9 +74,3 @@ export async function* searchStream(
     };
   }
 }
-
-export async function search(query: string, by: SearchBy = "any", sources: Source[] = SOURCES): Promise<SearchProgress> {
-  let last: SearchProgress = { results: [], failures: [], pending: [] };
-  for await (const progress of searchStream(query, by, sources)) last = progress;
-  return last;
-}

@@ -2,7 +2,13 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { parseComic, withPrefix, type Comic, type Source } from "@/comic";
 import { cleanAuthor, collapseSeries, mergeComics } from "@/merge";
-import { rank, search, searchStream } from "@/search";
+import { rank, searchStream, type SearchProgress } from "@/search";
+
+async function search(query: string, by: "any" | "author", sources: Source[]): Promise<SearchProgress> {
+  let last!: SearchProgress;
+  for await (const progress of searchStream(query, by, sources)) last = progress;
+  return last;
+}
 
 const comic = (over: Partial<Comic>): Comic => ({
   source: "openlibrary", sourceId: "1", title: "Batman", authors: [], publisher: null,

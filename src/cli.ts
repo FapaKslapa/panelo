@@ -24,7 +24,7 @@ async function runSearch(query: string, by: SearchBy, limit: number, json: boole
 
   if (json) console.log(JSON.stringify(shown, null, 2));
   else {
-    const covers = await Promise.all(shown.map((r) => (supportsImages() ? fetchCover(r.cover) : null)));
+    const covers = await Promise.all(shown.map((r) => (process.stdout.isTTY ? fetchCover(r.cover, supportsImages() ? "png" : "blocks") : null)));
     console.log(shown.map((r, i) => formatResult(r, i, covers[i])).join("\n\n"));
     if (shown.length) console.log();
   }

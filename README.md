@@ -9,11 +9,11 @@ A command-line tool that searches comics, manga and graphic novels across severa
 - Ranks results by relevance (title match first, then matches in authors or publisher), then by how many sources agree and whether a cover is available.
 - Collapses volumes of the same series into one entry, unless the query contains a number (for example `dylan dog 442`), in which case the specific volume is returned.
 - Shows results as they arrive, with a progress indicator on stderr, and reports sources that failed without aborting the search.
-- Renders cover images inline in terminals that support images.
+- Shows covers in the terminal: full-resolution images in kitty-protocol terminals (Kitty, Ghostty, WezTerm), a pixel-art version drawn with colored half-blocks in any other true-color terminal, and a colored tile with the initials when no cover is available.
 
 ## Requirements
 
-- Node.js
+- Node.js 22 or newer
 - pnpm
 
 ## Setup
@@ -59,6 +59,7 @@ pnpm typecheck   # TypeScript check
 
 ## Notes
 
+- Cover conversion uses the macOS `sips` tool. On other platforms results show the colored initials tile instead of the cover.
 - SBN does not return authors, ISBNs or covers in its search, only title and publication data.
 - Comic Vine describes series rather than single issues.
 
