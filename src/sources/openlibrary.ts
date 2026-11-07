@@ -18,7 +18,7 @@ const ResponseSchema = z.object({
 });
 
 // Il filtro per soggetto è l'unico modo di escludere i libri non fumetto
-const COMICS_ONLY = '(subject:comics OR subject:"graphic novels" OR subject:fumetti OR subject:"bandes dessinées" OR subject:manga)';
+const COMICS_ONLY = '(subject:comics OR subject:"graphic novels" OR subject:fumetti OR subject:"bandes dessinées" OR subject:manga OR subject:quadrinhos OR subject:"histórias em quadrinhos" OR subject:"história em quadrinhos" OR subject:gibis)';
 
 // Saggi e studi sui fumetti portano il soggetto "history and criticism": non sono fumetti
 const ABOUT_COMICS = /history and criticism|literary criticism|study and teaching|bibliograph/i;

@@ -28,6 +28,8 @@ Comic Vine is only used when an API key is set:
 export COMIC_VINE_API_KEY=your_key
 ```
 
+or put `COMIC_VINE_API_KEY=your_key` in a `.env` file at the project root (git-ignored, loaded by `pnpm panelo`).
+
 ## Usage
 
 ```sh

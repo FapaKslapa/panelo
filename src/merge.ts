@@ -1,6 +1,6 @@
 import { fold, ResultSchema, type Comic, type Result } from "@/comic";
 
-const ISO_639_2: Record<string, string> = { fre: "fr", ita: "it", eng: "en", jpn: "ja", spa: "es", ger: "de" };
+const ISO_639_2: Record<string, string> = { fre: "fr", ita: "it", eng: "en", jpn: "ja", spa: "es", ger: "de", por: "pt" };
 const ARTICLES = /^(le|la|les|l|un|une|il|lo|gli|i|the|a|an|el|los|las|der|die|das)\s+/;
 const OLDEST_YEAR = 1800;
 // "Persepolis 3", "Thorgal, tome 7", "Dylan Dog vol. 9", "Persepolis 1 & 2", "Persepolis I and II"

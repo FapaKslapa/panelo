@@ -9,7 +9,7 @@
   "scripts": {
     "test": "node --import tsx --test \"src/**/*.test.ts\"",
     "typecheck": "tsc --noEmit",
-    "panelo": "tsx src/cli.ts"
+    "panelo": "tsx --env-file-if-exists=.env src/cli.ts"
   },
   "dependencies": {
     "cheerio": "^1.2.0",
