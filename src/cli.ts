@@ -1,6 +1,6 @@
 import { parseArgs } from "node:util";
 import type { SearchBy } from "@/comic";
-import { fetchCover, formatFailure, formatFooter, formatPending, formatResult, supportsImages } from "@/format";
+import { fetchCover, formatFailure, formatLogo, formatFooter, formatPending, formatResult, supportsImages } from "@/format";
 import { searchStream, type SearchProgress } from "@/search";
 
 const USAGE = 'Usage: pnpm panelo search "<title>" [--author] [--limit 15] [--json]';
@@ -18,6 +18,7 @@ async function collect(query: string, by: SearchBy): Promise<SearchProgress> {
 
 async function runSearch(query: string, by: SearchBy, limit: number, json: boolean): Promise<number> {
   const started = performance.now();
+  if (!json && process.stdout.isTTY) console.log(formatLogo());
   const { results, failures } = await collect(query, by);
   const shown = results.slice(0, limit);
 

@@ -41,6 +41,28 @@ function kittyImage(b64: string): string {
     .join("");
 }
 
+export const formatLogo = () =>
+  [
+    ["magenta", "┏━┓┏━┓┏┓╻┏━╸╻  ┏━┓"],
+    ["magenta", "┣━┛┣━┫┃┗┫┣╸ ┃  ┃ ┃"],
+    ["cyan", "╹  ╹ ╹╹ ╹┗━╸┗━╸┗━┛"],
+  ]
+    .map(([color, row]) => ` ${styleText(["bold", color as "magenta"], row!)}`)
+    .join("\n") + `\n ${styleText("dim", "comics, manga & graphic novels · one search, many catalogs")}\n`;
+
+// Fallback for terminals without image support: a colored tile (hue from the title) with the initials
+function placeholder(title: string): string[] {
+  const hue = [...title].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 7);
+  const f = (n: number) => {
+    const k = (n + hue / 30) % 12;
+    return Math.round(255 * (0.4 - 0.25 * Math.max(-1, Math.min(k - 3, 9 - k, 1))));
+  };
+  const bg = `\x1b[48;2;${f(0)};${f(8)};${f(4)}m`;
+  const initials = title.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
+  const mid = `${initials}`.padStart(Math.ceil((IMG_COLS + initials.length) / 2)).padEnd(IMG_COLS);
+  return Array.from({ length: IMG_ROWS }, (_, i) => `${bg}\x1b[1;97m${i === 3 ? mid : " ".repeat(IMG_COLS)}\x1b[0m`);
+}
+
 export function formatResult(result: Result, index: number, cover: string | null = null): string {
   const details = [result.authors.slice(0, 3).join(", "), result.publisher, result.year, result.languages.join("/"), seriesLabel(result)]
     .filter(Boolean)
@@ -51,7 +73,8 @@ export function formatResult(result: Result, index: number, cover: string | null
     `   ${styleText("dim", details || "—")}`,
     `   ${tags}`,
   ];
-  if (!cover) return lines.join("\n");
+  if (!process.stdout.isTTY) return lines.join("\n");
+  if (!cover) return placeholder(result.title).map((tile, i) => `${tile}  ${lines[i] ?? ""}`).join("\n");
   const pad = `\x1b[${IMG_COLS + 2}C`;
   const body = Array.from({ length: IMG_ROWS }, (_, i) => `${pad}${lines[i] ?? ""}`);
   return `${kittyImage(cover)}${body.join("\n")}`;
