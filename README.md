@@ -31,7 +31,7 @@ export COMIC_VINE_API_KEY=your_key
 ## Usage
 
 ```sh
-pnpm mael search "<title>" [--author] [--limit 15] [--json]
+pnpm panelo search "<title>" [--author] [--limit 15] [--json]
 ```
 
 | Option | Description |
@@ -43,9 +43,9 @@ pnpm mael search "<title>" [--author] [--limit 15] [--json]
 Examples:
 
 ```sh
-pnpm mael search "berserk"
-pnpm mael search "Zerocalcare" --author --limit 5
-pnpm mael search "dylan dog 442" --json
+pnpm panelo search "berserk"
+pnpm panelo search "Zerocalcare" --author --limit 5
+pnpm panelo search "dylan dog 442" --json
 ```
 
 The exit code is 0 when at least one result is found, 1 otherwise.

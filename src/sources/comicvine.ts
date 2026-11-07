@@ -26,7 +26,7 @@ export const comicVine = (apiKey: string): Source => ({
     url.searchParams.set("query", query);
     url.searchParams.set("limit", "20");
     url.searchParams.set("field_list", "id,name,start_year,count_of_issues,publisher,image");
-    const { results } = ResponseSchema.parse(await getJson(url, { headers: { "user-agent": "mael/0.1" } }));
+    const { results } = ResponseSchema.parse(await getJson(url, { headers: { "user-agent": "panelo/0.1" } }));
     return results.flatMap((v) =>
       parseComic({
         source: "comicvine",

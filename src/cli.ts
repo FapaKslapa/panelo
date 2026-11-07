@@ -3,7 +3,7 @@ import type { SearchBy } from "@/comic";
 import { fetchCover, formatFailure, formatFooter, formatPending, formatResult, supportsImages } from "@/format";
 import { searchStream, type SearchProgress } from "@/search";
 
-const USAGE = 'Usage: pnpm mael search "<title>" [--author] [--limit 15] [--json]';
+const USAGE = 'Usage: pnpm panelo search "<title>" [--author] [--limit 15] [--json]';
 
 const DEFAULT_LIMIT = 15;
 

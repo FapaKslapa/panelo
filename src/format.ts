@@ -20,7 +20,7 @@ export const supportsImages = () =>
 // shortcut: converts with macOS `sips` (kitty protocol needs PNG), swap for a decoder when porting off macOS
 export async function fetchCover(url: string | null): Promise<string | null> {
   if (!url) return null;
-  const dir = await mkdtemp(join(tmpdir(), "mael-"));
+  const dir = await mkdtemp(join(tmpdir(), "panelo-"));
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
     if (!res.ok) return null;
