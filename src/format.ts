@@ -2,10 +2,17 @@ import { styleText } from "node:util";
 import sharp from "sharp";
 import type { Result, SourceName } from "@/comic";
 
-const SOURCE_LABELS: Record<SourceName, string> = { openlibrary: "ol", bnf: "bnf", sbn: "sbn", anilist: "ani", comicvine: "cv" };
+const SOURCES: Record<SourceName, { label: string; color: "green" | "blue" | "yellow" | "magenta" | "red" }> = {
+  openlibrary: { label: "Open Library", color: "green" },
+  bnf: { label: "BnF", color: "blue" },
+  sbn: { label: "SBN", color: "yellow" },
+  anilist: { label: "AniList", color: "magenta" },
+  comicvine: { label: "Comic Vine", color: "red" },
+};
 
+const plural = (n: number) => `${n} volume${n === 1 ? "" : "s"}`;
 const seriesLabel = ({ seriesSize, volumes }: Result) =>
-  seriesSize ? `series of ${seriesSize}` : volumes && `up to vol. ${volumes}`;
+  seriesSize ? plural(seriesSize) : volumes ? `${volumes}+ volumes` : null;
 
 export const IMG_COLS = 16;
 export const IMG_ROWS = 11;
@@ -78,17 +85,21 @@ function placeholder(title: string): string[] {
 }
 
 export function formatResult(result: Result, index: number, cover: Cover | null = null): string {
-  const room = (process.stdout.columns || 80) - IMG_COLS - 6;
+  const room = (process.stdout.columns || 80) - IMG_COLS - 8;
   const cut = (text: string) => (process.stdout.isTTY && text.length > room ? `${text.slice(0, room - 1)}…` : text);
-  const details = cut([result.authors.slice(0, 3).join(", "), result.publisher, result.year, result.languages.join("/"), seriesLabel(result)]
-    .filter(Boolean)
-    .join(" · "));
-  const tags = [...new Set(result.sources.map((s) => SOURCE_LABELS[s.source]))].map((t) => styleText("cyan", `[${t}]`)).join(" ");
+  const row = (parts: (string | number | null)[]) => cut(parts.filter(Boolean).join("  ·  "));
+  const sources = [...new Set(result.sources.map((s) => s.source))]
+    .map((name) => styleText(SOURCES[name].color, `● ${SOURCES[name].label}`))
+    .join("  ");
+  const series = seriesLabel(result);
   const lines = [
-    `${styleText("magenta", String(index + 1).padStart(2, "0"))} ${styleText(["bold", "white"], cut(result.title))}`,
-    `   ${styleText("dim", details || "—")}`,
-    `   ${tags}`,
-  ];
+    `${styleText("dim", String(index + 1).padStart(2, "0"))}  ${styleText(["bold", "white"], cut(result.title))}`,
+    result.authors.length ? `    ${styleText("cyan", cut(result.authors.slice(0, 3).join(", ")))}` : null,
+    `    ${styleText("dim", row([result.publisher, result.year, result.languages.map((l) => l.toUpperCase()).join(" ")]) || "—")}`,
+    series ? `    ${styleText("yellow", `▸ ${series}`)}` : null,
+    result.isbn ? `    ${styleText("dim", `ISBN ${result.isbn}`)}` : null,
+    `    ${sources}`,
+  ].filter((l): l is string => l !== null);
   if (!process.stdout.isTTY) return lines.join("\n");
   if (typeof cover !== "string") {
     const tiles = cover ?? placeholder(result.title);

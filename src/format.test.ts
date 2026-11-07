@@ -12,7 +12,24 @@ const result: Result = {
 test("without a terminal the result is plain text", () => {
   const tty = process.stdout.isTTY;
   process.stdout.isTTY = false;
-  assert.equal(formatResult(result, 0).split("\n").length, 3);
+  const lines = formatResult({ ...result, seriesSize: 17, isbn: "9782723456789" }, 0).replace(/\x1b\[[0-9;]*m/g, "").split("\n");
+  assert.deepEqual(lines, [
+    "01  Berserk",
+    "    Kentaro Miura",
+    "    Glénat  ·  2004  ·  FR",
+    "    ▸ 17 volumes",
+    "    ISBN 9782723456789",
+    "    ● BnF",
+  ]);
+  process.stdout.isTTY = tty;
+});
+
+test("a single volume is singular and missing fields are skipped", () => {
+  const tty = process.stdout.isTTY;
+  process.stdout.isTTY = false;
+  const lines = formatResult({ ...result, authors: [], publisher: null, year: null, languages: [], seriesSize: 1 }, 0)
+    .replace(/\x1b\[[0-9;]*m/g, "").split("\n");
+  assert.deepEqual(lines.slice(1, 3), ["    —", "    ▸ 1 volume"]);
   process.stdout.isTTY = tty;
 });
 
