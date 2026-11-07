@@ -1,9 +1,5 @@
-import { execFile } from "node:child_process";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-import { promisify } from "node:util";
 import { styleText } from "node:util";
+import sharp from "sharp";
 import type { Result, SourceName } from "@/comic";
 
 const SOURCE_LABELS: Record<SourceName, string> = { openlibrary: "ol", bnf: "bnf", sbn: "sbn", anilist: "ani", comicvine: "cv" };
@@ -11,8 +7,8 @@ const SOURCE_LABELS: Record<SourceName, string> = { openlibrary: "ol", bnf: "bnf
 const seriesLabel = ({ seriesSize, volumes }: Result) =>
   seriesSize ? `series of ${seriesSize}` : volumes && `up to vol. ${volumes}`;
 
-export const IMG_COLS = 12;
-export const IMG_ROWS = 8;
+export const IMG_COLS = 16;
+export const IMG_ROWS = 11;
 
 export const supportsImages = () =>
   Boolean(process.stdout.isTTY) && (/ghostty|kitty/.test(process.env.TERM ?? "") || process.env.TERM_PROGRAM === "WezTerm");
@@ -21,41 +17,23 @@ export const supportsImages = () =>
 export type Cover = string | string[];
 
 // Each text cell shows two vertically stacked pixels: top as foreground of "▀", bottom as background
-export function blocksFromBmp(bmp: Buffer): string[] {
-  const offset = bmp.readUInt32LE(10);
-  const width = bmp.readInt32LE(18);
-  const height = bmp.readInt32LE(22);
-  const bytes = bmp.readUInt16LE(28) / 8;
-  const stride = Math.ceil((width * bytes) / 4) * 4;
-  const pixel = (x: number, y: number) => {
-    const row = height < 0 ? y : Math.abs(height) - 1 - y; // positive height = stored bottom-up
-    const i = offset + row * stride + x * bytes;
-    return `${bmp[i + 2]};${bmp[i + 1]};${bmp[i]}`;
-  };
-  return Array.from({ length: Math.abs(height) / 2 }, (_, r) =>
-    Array.from({ length: width }, (_, x) => `\x1b[38;2;${pixel(x, 2 * r)};48;2;${pixel(x, 2 * r + 1)}m▀`).join("") + "\x1b[0m",
+export async function coverFromBuffer(image: Buffer, mode: "png" | "blocks"): Promise<Cover> {
+  if (mode === "png") return (await sharp(image).resize({ width: 300, withoutEnlargement: true }).png().toBuffer()).toString("base64");
+  const [w, h] = [IMG_COLS, IMG_ROWS * 2];
+  const data = await sharp(image).resize(w, h, { fit: "fill" }).flatten({ background: "#000" }).raw().toBuffer();
+  const px = (x: number, y: number) => `${data[(y * w + x) * 3]};${data[(y * w + x) * 3 + 1]};${data[(y * w + x) * 3 + 2]}`;
+  return Array.from({ length: IMG_ROWS }, (_, r) =>
+    Array.from({ length: w }, (_, x) => `\x1b[38;2;${px(x, 2 * r)};48;2;${px(x, 2 * r + 1)}m▀`).join("") + "\x1b[0m",
   );
 }
 
-// shortcut: converts with macOS `sips`, other platforms get the colored placeholder; swap for a decoder to port
 export async function fetchCover(url: string | null, mode: "png" | "blocks"): Promise<Cover | null> {
-  if (!url || process.platform !== "darwin") return null;
-  const dir = await mkdtemp(join(tmpdir(), "panelo-"));
+  if (!url) return null;
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    if (!res.ok) return null;
-    await writeFile(join(dir, "in"), Buffer.from(await res.arrayBuffer()));
-    const args =
-      mode === "png"
-        ? ["-s", "format", "png", "-Z", "300"]
-        : ["-z", String(IMG_ROWS * 2), String(IMG_COLS), "-s", "format", "bmp"];
-    await promisify(execFile)("sips", [...args, join(dir, "in"), "--out", join(dir, "out")]);
-    const out = await readFile(join(dir, "out"));
-    return mode === "png" ? out.toString("base64") : blocksFromBmp(out);
+    return res.ok ? await coverFromBuffer(Buffer.from(await res.arrayBuffer()), mode) : null;
   } catch {
     return null;
-  } finally {
-    await rm(dir, { recursive: true, force: true });
   }
 }
 
