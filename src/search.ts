@@ -5,9 +5,15 @@ import { bnf } from "@/sources/bnf";
 import { openLibrary } from "@/sources/openlibrary";
 import { comicVine } from "@/sources/comicvine";
 import { sbn } from "@/sources/sbn";
+import { googleBooks } from "@/sources/googlebooks";
 
 const comicVineKey = process.env.COMIC_VINE_API_KEY;
-const SOURCES: Source[] = [openLibrary, bnf, sbn, aniList, ...(comicVineKey ? [comicVine(comicVineKey)] : [])];
+const googleBooksKey = process.env.GOOGLE_BOOKS_API_KEY;
+const SOURCES: Source[] = [
+  openLibrary, bnf, sbn, aniList,
+  ...(comicVineKey ? [comicVine(comicVineKey)] : []),
+  ...(googleBooksKey ? [googleBooks(googleBooksKey)] : []),
+];
 
 
 // Le fonti cercano in largo (note, editori): resta solo chi contiene ogni parola cercata

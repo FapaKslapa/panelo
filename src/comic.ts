@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const SourceName = z.enum(["openlibrary", "bnf", "sbn", "anilist", "comicvine"]);
+export const SourceName = z.enum(["openlibrary", "bnf", "sbn", "anilist", "comicvine", "googlebooks"]);
 export type SourceName = z.infer<typeof SourceName>;
 
 const HttpsUrl = z.url({ protocol: /^https$/ });

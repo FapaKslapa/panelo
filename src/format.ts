@@ -2,12 +2,13 @@ import { styleText } from "node:util";
 import sharp from "sharp";
 import type { Result, SourceName } from "@/comic";
 
-const SOURCES: Record<SourceName, { label: string; color: "green" | "blue" | "yellow" | "magenta" | "red" }> = {
+const SOURCES: Record<SourceName, { label: string; color: "green" | "blue" | "yellow" | "magenta" | "red" | "cyan" }> = {
   openlibrary: { label: "Open Library", color: "green" },
   bnf: { label: "BnF", color: "blue" },
   sbn: { label: "SBN", color: "yellow" },
   anilist: { label: "AniList", color: "magenta" },
   comicvine: { label: "Comic Vine", color: "red" },
+  googlebooks: { label: "Google Books", color: "cyan" },
 };
 
 const plural = (n: number) => `${n} volume${n === 1 ? "" : "s"}`;
@@ -59,6 +60,9 @@ const LOGO = [
   "██║     ██║  ██║██║ ╚████║███████╗███████╗╚██████╔╝",
   "╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝ ╚═════╝ ",
 ];
+
+// Erase screen, scrollback and kitty-protocol images, so the banner starts on a blank terminal
+export const CLEAR_SCREEN = "\x1b_Ga=d\x1b\\\x1b[2J\x1b[3J\x1b[H";
 
 // Rows fade from magenta to cyan; narrow terminals get a plain word instead of the banner
 export function formatLogo(): string {

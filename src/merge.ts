@@ -65,7 +65,7 @@ function combine(group: Comic[]): Result {
     authors: [...new Set((group.find((c) => c.authors.length)?.authors ?? []).map(cleanAuthor))],
     publisher: trimmed(firstDefined(group.map((c) => c.publisher))),
     year: years.length ? Math.min(...years) : null,
-    languages: [...new Set(group.flatMap((c) => c.languages).flatMap((l) => ISO_639_2[l] ?? []))],
+    languages: [...new Set(group.flatMap((c) => c.languages).flatMap((l) => ISO_639_2[l] ?? (l.length === 2 ? l : [])))],
     isbn: firstDefined(group.map((c) => c.isbn)),
     cover: firstDefined(group.map((c) => c.cover)),
     volumes: null,

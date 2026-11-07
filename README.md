@@ -4,7 +4,7 @@ A command-line tool that searches comics, manga and graphic novels across severa
 
 ## What it does
 
-- Queries multiple sources in parallel: Open Library, BnF (French national library), SBN (Italian library catalog), AniList (manga) and, optionally, Comic Vine.
+- Queries multiple sources in parallel: Open Library, BnF (French national library), SBN (Italian library catalog), AniList (manga) and, optionally, Comic Vine and Google Books.
 - Merges duplicate entries coming from different sources into a single result and records which sources found it.
 - Ranks results by relevance (title match first, then matches in authors or publisher), then by how many sources agree and whether a cover is available.
 - Collapses volumes of the same series into one entry, unless the query contains a number (for example `dylan dog 442`), in which case the specific volume is returned.
@@ -22,13 +22,13 @@ A command-line tool that searches comics, manga and graphic novels across severa
 pnpm install
 ```
 
-Comic Vine is only used when an API key is set:
+Comic Vine and Google Books are only used when their API keys are set (`COMIC_VINE_API_KEY`, `GOOGLE_BOOKS_API_KEY`), for example:
 
 ```sh
 export COMIC_VINE_API_KEY=your_key
 ```
 
-or put `COMIC_VINE_API_KEY=your_key` in a `.env` file at the project root (git-ignored, loaded by `pnpm panelo`).
+or put the variables in a `.env` file at the project root (git-ignored, loaded by `pnpm panelo`).
 
 ## Usage
 
