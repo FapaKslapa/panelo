@@ -66,14 +66,25 @@ function kittyImage(b64: string): string {
     .join("");
 }
 
-export const formatLogo = () =>
-  [
-    ["magenta", "┏━┓┏━┓┏┓╻┏━╸╻  ┏━┓"],
-    ["magenta", "┣━┛┣━┫┃┗┫┣╸ ┃  ┃ ┃"],
-    ["cyan", "╹  ╹ ╹╹ ╹┗━╸┗━╸┗━┛"],
-  ]
-    .map(([color, row]) => ` ${styleText(["bold", color as "magenta"], row!)}`)
-    .join("\n") + `\n ${styleText("dim", "comics, manga & graphic novels · one search, many catalogs")}\n`;
+const LOGO = [
+  "██████╗  █████╗ ███╗   ██╗███████╗██╗      ██████╗ ",
+  "██╔══██╗██╔══██╗████╗  ██║██╔════╝██║     ██╔═══██╗",
+  "██████╔╝███████║██╔██╗ ██║█████╗  ██║     ██║   ██║",
+  "██╔═══╝ ██╔══██║██║╚██╗██║██╔══╝  ██║     ██║   ██║",
+  "██║     ██║  ██║██║ ╚████║███████╗███████╗╚██████╔╝",
+  "╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝ ╚═════╝ ",
+];
+
+// Rows fade from magenta to cyan; narrow terminals get a plain word instead of the banner
+export function formatLogo(): string {
+  const tagline = styleText("dim", "comics, manga & graphic novels · one search, many catalogs");
+  if ((process.stdout.columns || 80) < 54) return `${styleText(["bold", "magenta"], "panelo")}\n${tagline}\n`;
+  const rows = LOGO.map((row, i) => {
+    const t = i / (LOGO.length - 1);
+    return `\x1b[38;2;${Math.round(255 - 195 * t)};${Math.round(80 + 120 * t)};${Math.round(200 + 55 * t)}m${row}\x1b[0m`;
+  });
+  return `${rows.join("\n")}\n${tagline}\n`;
+}
 
 // Fallback for terminals without image support: a colored tile (hue from the title) with the initials
 function placeholder(title: string): string[] {
